@@ -1,0 +1,135 @@
+body {
+  background-color: #121212;
+  color: #e0e0e0;
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+.container {
+  max-width: 900px;
+  margin: auto;
+  padding: 20px;
+}
+
+textarea {
+  width: 100%;
+  height: 150px;
+  background-color: #1e1e1e;
+  color: #e0e0e0;
+  border: 1px solid #333;
+  margin-bottom: 10px;
+  padding: 10px;
+  resize: vertical;
+}
+
+input,
+select,
+button {
+  margin: 5px;
+  padding: 5px;
+  background-color: #222;
+  color: #eee;
+  border: 1px solid #555;
+}
+
+.output-block {
+  background-color: #1e1e1e;
+  border: 1px solid #333;
+  padding: 10px;
+  margin-bottom: 10px;
+}
+
+.block-preview {
+  white-space: pre-wrap;
+  margin-bottom: 6px;
+  font-style: italic;
+}
+
+.block-preview span.code-u {
+  color: #8f194b; /* malinowy - domyślny dla /me */
+}
+
+.block-preview span.code-f {
+  color: #ffffff; /* biały - np. dla cytatów z &f */
+}
+
+.block-preview span.code-7 {
+  color: #a2a2a2; /* szary - domyślny dla /it */
+}
+
+.block-preview span.code-fl {
+  color: #ffffff;
+  font-weight: bold; /* pogrubiony biały */
+}
+
+.block-preview span.code-c {
+  color: #ff5555; /* domyślny fallback - czerwony */
+}
+
+.block-preview span {
+  font-style: normal;
+}
+
+.block-raw {
+  background-color: #000;
+  color: #ccc;
+  padding: 5px;
+  white-space: pre-wrap;
+  border: 1px dashed #444;
+  margin-bottom: 5px;
+}
+
+.copy-button {
+  background-color: #444;
+  border: none;
+  padding: 4px 10px;
+  margin-right: 8px;
+  cursor: pointer;
+  color: white;
+  border-radius: 3px;
+}
+
+.copy-button:hover {
+  background-color: #666;
+}
+
+.char-count {
+  font-size: 12px;
+  color: #999;
+}
+
+.block-preview span.code-0 { color: #000000; }
+.block-preview span.code-1 { color: #0000aa; }
+.block-preview span.code-2 { color: #00aa00; }
+.block-preview span.code-3 { color: #00aaaa; }
+.block-preview span.code-4 { color: #aa0000; }
+.block-preview span.code-5 { color: #aa00aa; }
+.block-preview span.code-6 { color: #ffaa00; }
+.block-preview span.code-7 { color: #aaaaaa; }
+.block-preview span.code-8 { color: #555555; }
+.block-preview span.code-9 { color: #5555ff; }
+.block-preview span.code-a { color: #55ff55; }
+.block-preview span.code-b { color: #55ffff; }
+.block-preview span.code-c { color: #ff5555; }
+.block-preview span.code-d { color: #ff55ff; }
+.block-preview span.code-e { color: #ffff55; }
+.block-preview span.code-f { color: #ffffff; }
+
+.block-preview span.code-u { color: #8f194b; }
+
+.block-preview span.code-l { font-weight: bold; }
+.block-preview span.code-o { font-style: italic; }
+.block-preview span.code-n { text-decoration: underline; }
+.block-preview span.code-m { text-decoration: line-through; }
+
+.block-preview span.code-k {
+  animation: magic 1s infinite;
+}
+@keyframes magic {
+  0% { opacity: 0; }
+  50% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+

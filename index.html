@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SRP Append Breaker</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="container">
+    <h1>SRP Append Breaker</h1>
+
+    <div class="profile-controls">
+      <input type="text" id="profileName" placeholder="Profile name" />
+      <button onclick="saveProfile()">Save</button>
+      <button onclick="loadProfile()">Load</button>
+      <button onclick="deleteProfile()">Delete</button>
+      <select id="profileList"></select>
+    </div>
+
+    <div class="settings">
+      <label>Command:
+        <select id="command">
+          <option>/me</option><option>/my</option><option>/it</option>
+          <option>/mec</option><option>/myc</option><option>/itc</option>
+          <option>/mel</option><option>/myl</option><option>/itl</option>
+        </select>
+      </label>
+
+      <label>Append marker color:
+        <select id="appendColor">
+  <option value="&0">Black (§0)</option>
+  <option value="&1">Dark Blue (§1)</option>
+  <option value="&2">Dark Green (§2)</option>
+  <option value="&3">Dark Aqua (§3)</option>
+  <option value="&4">Dark Red (§4)</option>
+  <option value="&5">Dark Purple (§5)</option>
+  <option value="&6">Gold (§6)</option>
+  <option value="&7" selected>Gray (§7)</option>
+  <option value="&8">Dark Gray (§8)</option>
+  <option value="&9">Blue (§9)</option>
+  <option value="&a">Green (§a)</option>
+  <option value="&b">Aqua (§b)</option>
+  <option value="&c">Red (§c)</option>
+  <option value="&d">Light Purple (§d)</option>
+  <option value="&e">Yellow (§e)</option>
+  <option value="&f">White (§f)</option>
+</select>
+      </label>
+    </div>
+
+    <textarea id="inputText" placeholder="Enter your action text here..."></textarea>
+    <button onclick="generateOutput()">Generate</button>
+
+    <div id="output"></div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
