@@ -15,7 +15,7 @@ function formatTextWithAppends(text, prefix, appendColor = '&7') {
     bold: '&f&l',
   };
 
-  const quoteOpenChar = '„';
+  const quoteOpenChar = '“';
   const quoteCloseChar = '”';
 
   let globalQuoteStyle = quoteStyleMap.simple;
@@ -76,7 +76,7 @@ function formatTextWithAppends(text, prefix, appendColor = '&7') {
 
     let quoteState = quoteOpenGlobally;
     let processed = '';
-    let parts = block.split(/(„|”)/);
+    let parts = block.split(/(“|”)/);
     let lastAppliedCode = '';
 
     for (let part of parts) {
