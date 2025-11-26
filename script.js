@@ -7,7 +7,7 @@ function formatTextWithAppends(text, prefix, appendColor = '&7') {
   const hardTextLimit = 235;
 
   let quoteCount = 0;
-  text = text.replace(/"/g, () => (quoteCount++ % 2 === 0 ? '„' : '”'));
+  text = text.replace(/"/g, () => (quoteCount++ % 2 === 0 ? '“' : '”'));
 
   const quoteStyleMap = {
     simple: '&f',
