@@ -19,31 +19,24 @@ function formatTextWithAppends(text, prefix, appendColor = '&7') {
   const words = text.split(/(\s+)/);
   const blocks = [];
   let currentBlock = '';
-  let currentLength = 0;
 
-  const calcTotalLength = (block, suffix) => {
-    let extra = 0;
-    if (currentBlock === '') extra += prefix ? prefix.length + 1 : 0;
-    extra += suffix.length;
-    return block.replace(/&[0-9a-fk-or]/gi, '').length + extra;
+  const estimateLength = (block, suffix) => {
+    let len = block.replace(/&[0-9a-fk-or]/gi, '').length;
+    len += prefix.length + 1;
+    len += suffix.length;
+    return len;
   };
 
   for (const word of words) {
-    const plainWord = word.replace(/&[0-9a-fk-or]/gi, '');
-    let suffix = '';
-    if (blocks.length % 4 === 0 || blocks.length % 4 === 1 || blocks.length % 4 === 3) suffix = '--';
-    else if (blocks.length % 4 === 2) suffix = ` ${appendColor}[+]`;
+    let suffix = '--';
+    if ((blocks.length % 4) === 2) suffix = ` ${appendColor}[+]`;
 
-    if (calcTotalLength(currentBlock + word, suffix) > maxBlockLength) {
-      blocks.push(currentBlock.trim());
+    if (estimateLength(currentBlock + word, suffix) > maxBlockLength) {
+      if (currentBlock) blocks.push(currentBlock.trim());
       currentBlock = word;
-      currentLength = plainWord.length;
-    } else {
-      currentBlock += word;
-      currentLength += plainWord.length;
-    }
+    } else currentBlock += word;
   }
-  if (currentBlock.trim() !== '') blocks.push(currentBlock.trim());
+  if (currentBlock) blocks.push(currentBlock.trim());
 
   const result = [];
   let quoteOpenGlobally = false;
@@ -52,36 +45,31 @@ function formatTextWithAppends(text, prefix, appendColor = '&7') {
   for (let i = 0; i < blocks.length; i++) {
     const isLastBlock = i === blocks.length - 1;
     const cycleIndex = realBlockIndex % 4;
-
-    let currentPrefix = '';
+    let currentPrefix = realBlockIndex === 0 ? prefix : '';
     let suffix = '';
-
-    if (realBlockIndex === 0) currentPrefix = prefix;
-    if (cycleIndex === 3) {
-      if (suffix === 'c') currentPrefix = '/itc';
-      else if (suffix === 'l') currentPrefix = '/itl';
-      else currentPrefix = '/it';
+    if (!isLastBlock) {
+      switch (cycleIndex) {
+        case 0:
+        case 1:
+        case 3: suffix = '--'; break;
+        case 2: suffix = ` ${appendColor}[+]`; break;
+      }
     }
-
-    let prefixStart = '';
-    if (currentPrefix === '/it') prefixStart = `${currentPrefix} ${appendColor} [+] `;
-    else if (currentPrefix) prefixStart = `${currentPrefix} `;
+    if (cycleIndex === 3) currentPrefix = '/it';
+    let prefixStart = currentPrefix ? `${currentPrefix} ` : '';
 
     let block = blocks[i];
     let quoteState = quoteOpenGlobally;
     let processed = '';
     let parts = block.split(/(„|”)/);
     let lastAppliedCode = '';
-
     for (let part of parts) {
       if (part === quoteOpenChar) {
         processed += appendColor + quoteOpenChar + globalQuoteStyle;
-        quoteState = true;
-        lastAppliedCode = globalQuoteStyle;
+        quoteState = true; lastAppliedCode = globalQuoteStyle;
       } else if (part === quoteCloseChar) {
         processed += appendColor + quoteCloseChar + '&u';
-        quoteState = false;
-        lastAppliedCode = '&u';
+        quoteState = false; lastAppliedCode = '&u';
       } else {
         const styleCode = quoteState ? globalQuoteStyle : '&u';
         processed += (lastAppliedCode !== styleCode ? styleCode : '') + part;
@@ -89,30 +77,8 @@ function formatTextWithAppends(text, prefix, appendColor = '&7') {
       }
     }
 
-    if (!isLastBlock) {
-      switch (cycleIndex) {
-        case 0:
-        case 1:
-          suffix = '--';
-          break;
-        case 2:
-          suffix = ` ${appendColor}[+]`;
-          break;
-        case 3:
-          suffix = '--';
-          break;
-      }
-    }
-
-    result.push({
-      raw: `${prefixStart}${processed}${suffix}`,
-      preview: processed,
-      length: block.replace(/&[0-9a-fk-or]/gi, '').length
-    });
-
-    if (currentPrefix === '/it' && suffix === '--') realBlockIndex += 2;
-    else realBlockIndex++;
-
+    result.push({ raw: `${prefixStart}${processed}${suffix}`, preview: processed, length: block.replace(/&[0-9a-fk-or]/gi, '').length });
+    realBlockIndex++;
     quoteOpenGlobally = quoteState;
   }
 
