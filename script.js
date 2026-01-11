@@ -4,7 +4,7 @@ function escapeRegex(str) {
 
 function formatTextWithAppends(text, prefix, appendColor = '&7') {
   const maxLength = 256;
-  const hardTextLimit = 235;
+  const hardTextLimit = 210;
 
   let quoteCount = 0;
   text = text.replace(/"/g, () => (quoteCount++ % 2 === 0 ? '„' : '”'));
