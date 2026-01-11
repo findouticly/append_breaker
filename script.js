@@ -3,18 +3,12 @@ function escapeRegex(str) {
 }
 
 function formatTextWithAppends(text, prefix, appendColor = '&7') {
-  const maxLength = 256;
-  const hardTextLimit = 210;
+  const maxBlockLength = 210;
 
   let quoteCount = 0;
   text = text.replace(/"/g, () => (quoteCount++ % 2 === 0 ? '„' : '”'));
 
-  const quoteStyleMap = {
-    simple: '&f',
-    colored: '&7',
-    bold: '&f&l',
-  };
-
+  const quoteStyleMap = { simple: '&f', colored: '&7', bold: '&f&l' };
   const quoteOpenChar = '„';
   const quoteCloseChar = '”';
 
@@ -27,25 +21,33 @@ function formatTextWithAppends(text, prefix, appendColor = '&7') {
   let currentBlock = '';
   let currentLength = 0;
 
+  const calcTotalLength = (block, suffix) => {
+    let extra = 0;
+    if (currentBlock === '') extra += prefix ? prefix.length + 1 : 0;
+    extra += suffix.length;
+    return block.replace(/&[0-9a-fk-or]/gi, '').length + extra;
+  };
+
   for (const word of words) {
     const plainWord = word.replace(/&[0-9a-fk-or]/gi, '');
-    const wordLength = plainWord.length;
-    if (currentLength + wordLength > hardTextLimit) {
+    let suffix = '';
+    if (blocks.length % 4 === 0 || blocks.length % 4 === 1 || blocks.length % 4 === 3) suffix = '--';
+    else if (blocks.length % 4 === 2) suffix = ` ${appendColor}[+]`;
+
+    if (calcTotalLength(currentBlock + word, suffix) > maxBlockLength) {
       blocks.push(currentBlock.trim());
       currentBlock = word;
-      currentLength = wordLength;
+      currentLength = plainWord.length;
     } else {
       currentBlock += word;
-      currentLength += wordLength;
+      currentLength += plainWord.length;
     }
   }
-  if (currentBlock.trim() !== '') {
-    blocks.push(currentBlock.trim());
-  }
+  if (currentBlock.trim() !== '') blocks.push(currentBlock.trim());
 
   const result = [];
-  let realBlockIndex = 0;
   let quoteOpenGlobally = false;
+  let realBlockIndex = 0;
 
   for (let i = 0; i < blocks.length; i++) {
     const isLastBlock = i === blocks.length - 1;
@@ -56,24 +58,16 @@ function formatTextWithAppends(text, prefix, appendColor = '&7') {
 
     if (realBlockIndex === 0) currentPrefix = prefix;
     if (cycleIndex === 3) {
-  if (suffix === 'c') {
-    currentPrefix = '/itc';
-  } else if (suffix === 'l') {
-    currentPrefix = '/itl';
-  } else {
-    currentPrefix = '/it';
-  }
-}
-
-    let prefixStart = '';
-    if (currentPrefix === '/it') {
-      prefixStart = `${currentPrefix} ${appendColor} [+] `;
-    } else if (currentPrefix) {
-      prefixStart = `${currentPrefix} `;
+      if (suffix === 'c') currentPrefix = '/itc';
+      else if (suffix === 'l') currentPrefix = '/itl';
+      else currentPrefix = '/it';
     }
 
-    let block = blocks[i];
+    let prefixStart = '';
+    if (currentPrefix === '/it') prefixStart = `${currentPrefix} ${appendColor} [+] `;
+    else if (currentPrefix) prefixStart = `${currentPrefix} `;
 
+    let block = blocks[i];
     let quoteState = quoteOpenGlobally;
     let processed = '';
     let parts = block.split(/(„|”)/);
@@ -95,7 +89,6 @@ function formatTextWithAppends(text, prefix, appendColor = '&7') {
       }
     }
 
-    // Suffix
     if (!isLastBlock) {
       switch (cycleIndex) {
         case 0:
@@ -117,11 +110,8 @@ function formatTextWithAppends(text, prefix, appendColor = '&7') {
       length: block.replace(/&[0-9a-fk-or]/gi, '').length
     });
 
-    if (currentPrefix === '/it' && suffix === '--') {
-      realBlockIndex += 2;
-    } else {
-      realBlockIndex++;
-    }
+    if (currentPrefix === '/it' && suffix === '--') realBlockIndex += 2;
+    else realBlockIndex++;
 
     quoteOpenGlobally = quoteState;
   }
@@ -138,7 +128,6 @@ function applyColorCodes(text) {
     if (part.match(/^&/)) {
       if (openSpan) output += '</span>';
       openSpan = true;
-
       const cleanCode = part.toLowerCase().replace('&', '');
       switch (cleanCode) {
         case 'f&l':
@@ -153,20 +142,13 @@ function applyColorCodes(text) {
           output += `<span class="code-${cleanCode}">`;
           break;
         default:
-          if (cleanCode.length === 1 && '0123456789abcdef'.includes(cleanCode)) {
-            output += `<span class="code-${cleanCode}">`;
-          } else {
-            output += '<span>';
-          }
+          if (cleanCode.length === 1 && '0123456789abcdef'.includes(cleanCode)) output += `<span class="code-${cleanCode}">`;
+          else output += '<span>';
           break;
       }
-    } else {
-      output += part;
-    }
+    } else output += part;
   }
-
   if (openSpan) output += '</span>';
-
   return output.replace(/\n/g, '<br>');
 }
 
@@ -174,24 +156,18 @@ function generateOutput() {
   const inputText = document.getElementById("inputText").value;
   const command = document.getElementById("command").value;
   const appendColor = document.getElementById("appendColor").value;
-
   const outputDiv = document.getElementById("output");
   outputDiv.innerHTML = '';
-
   const blocks = formatTextWithAppends(inputText, command, appendColor);
-
-  blocks.forEach(({ raw, preview, length }, index) => {
+  blocks.forEach(({ raw, preview, length }) => {
     const blockEl = document.createElement('div');
     blockEl.className = 'output-block';
-
     const previewEl = document.createElement('div');
     previewEl.className = 'block-preview';
     previewEl.innerHTML = applyColorCodes(preview);
-
     const rawEl = document.createElement('pre');
     rawEl.className = 'block-raw';
     rawEl.textContent = raw;
-
     const copyBtn = document.createElement('button');
     copyBtn.className = 'copy-button';
     copyBtn.textContent = 'Copy';
@@ -200,16 +176,13 @@ function generateOutput() {
       copyBtn.textContent = 'Copied!';
       setTimeout(() => (copyBtn.textContent = 'Kopiuj'), 1000);
     };
-
     const charCount = document.createElement('div');
     charCount.className = 'char-count';
     charCount.textContent = `Characters: ${length}`;
-
     blockEl.appendChild(previewEl);
     blockEl.appendChild(rawEl);
     blockEl.appendChild(copyBtn);
     blockEl.appendChild(charCount);
-
     outputDiv.appendChild(blockEl);
   });
 }
