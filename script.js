@@ -6,10 +6,10 @@ function formatTextWithAppends(text, prefix, appendColor = '&7') {
   const maxBlockLength = 210;
 
   let quoteCount = 0;
-  text = text.replace(/"/g, () => (quoteCount++ % 2 === 0 ? '„' : '”'));
+  text = text.replace(/"/g, () => (quoteCount++ % 2 === 0 ? '“' : '”'));
 
   const quoteStyleMap = { simple: '&f', colored: '&7', bold: '&f&l' };
-  const quoteOpenChar = '„';
+  const quoteOpenChar = '“';
   const quoteCloseChar = '”';
 
   let globalQuoteStyle = quoteStyleMap.simple;
@@ -61,7 +61,7 @@ function formatTextWithAppends(text, prefix, appendColor = '&7') {
     let block = blocks[i];
     let quoteState = quoteOpenGlobally;
     let processed = '';
-    let parts = block.split(/(„|”)/);
+    let parts = block.split(/(“|”)/);
     let lastAppliedCode = '';
     for (let part of parts) {
       if (part === quoteOpenChar) {
