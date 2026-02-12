@@ -159,6 +159,13 @@ function generateOutput() {
 
   const blocks = formatTextWithAppends(inputText, command, appendColor);
 
+
+//    |\__/,|   (`\
+//  _.|o o  |_   ) )
+//-(((---(((--------
+// meowzers! nice code! :3
+
+
   blocks.forEach(({ raw, preview, length }) => {
     const blockEl = document.createElement('div');
     blockEl.className = 'output-block';
