@@ -5,10 +5,18 @@ function escapeRegex(str) {
 function formatTextWithAppends(text, prefix, appendColor = '&7') {
   const maxBlockLength = 210;
 
+  // Convert normal quotes to smart quotes
   let quoteCount = 0;
-  text = text.replace(/"/g, () => (quoteCount++ % 2 === 0 ? '“' : '”'));
+  text = text.replace(/"/g, () =>
+    quoteCount++ % 2 === 0 ? '“' : '”'
+  );
 
-  const quoteStyleMap = { simple: '&f', colored: '&7', bold: '&f&l' };
+  const quoteStyleMap = {
+    simple: '&f',
+    colored: '&7',
+    bold: '&f&l'
+  };
+
   const quoteOpenChar = '“';
   const quoteCloseChar = '”';
 
@@ -16,73 +24,96 @@ function formatTextWithAppends(text, prefix, appendColor = '&7') {
   if (prefix.endsWith('c')) globalQuoteStyle = quoteStyleMap.colored;
   if (prefix.endsWith('l')) globalQuoteStyle = quoteStyleMap.bold;
 
+  const visibleLength = str =>
+    str.replace(/&[0-9a-fk-or]/gi, '').length;
+
+  // -----------------------------
+  // STEP 1: Split ONLY by length
+  // -----------------------------
   const words = text.split(/(\s+)/);
   const blocks = [];
-  let currentBlock = '';
-
-  const estimateLength = (block, suffix) => {
-    let len = block.replace(/&[0-9a-fk-or]/gi, '').length;
-    len += prefix.length + 1;
-    len += suffix.length;
-    return len;
-  };
+  let current = '';
 
   for (const word of words) {
-    let suffix = '--';
-    if ((blocks.length % 4) === 2) suffix = ` ${appendColor}[+]`;
-
-    if (estimateLength(currentBlock + word, suffix) > maxBlockLength) {
-      if (currentBlock) blocks.push(currentBlock.trim());
-      currentBlock = word;
-    } else currentBlock += word;
+    if (visibleLength(current + word) > maxBlockLength) {
+      if (current.trim()) blocks.push(current.trim());
+      current = word;
+    } else {
+      current += word;
+    }
   }
-  if (currentBlock) blocks.push(currentBlock.trim());
 
+  if (current.trim()) blocks.push(current.trim());
+
+  // -----------------------------
+  // STEP 2: Apply strict cycle
+  // -----------------------------
   const result = [];
   let quoteOpenGlobally = false;
-  let realBlockIndex = 0;
+
+  let textInGroup = 0; // 0 → 1 → 2 → (3 triggers /it and reset)
 
   for (let i = 0; i < blocks.length; i++) {
-    const isLastBlock = i === blocks.length - 1;
-    const cycleIndex = realBlockIndex % 4;
-    let currentPrefix = realBlockIndex === 0 ? prefix : '';
+
+    let currentPrefix = '';
     let suffix = '';
-    if (!isLastBlock) {
-      switch (cycleIndex) {
-        case 0:
-        case 1:
-        case 3: suffix = '--'; break;
-        case 2: suffix = ` ${appendColor}[+]`; break;
-      }
+
+    // FIRST BLOCK
+    if (i === 0) {
+      currentPrefix = prefix;
     }
-    if (cycleIndex === 3) {
+
+    // AFTER 3 TEXT BLOCKS → INSERT /it + RESET
+    else if (textInGroup === 3) {
       if (prefix.endsWith('c')) currentPrefix = '/itc';
       else if (prefix.endsWith('l')) currentPrefix = '/itl';
       else currentPrefix = '/it';
+
+      textInGroup = 0; // reset cycle
     }
-    let prefixStart = currentPrefix ? `${currentPrefix} ` : '';
+
+    // SUFFIX LOGIC
+    if (textInGroup === 2) {
+      suffix = ` ${appendColor}[+]`;
+    } else {
+      suffix = '--';
+    }
 
     let block = blocks[i];
-    let quoteState = quoteOpenGlobally;
     let processed = '';
-    let parts = block.split(/(“|”)/);
+    let quoteState = quoteOpenGlobally;
     let lastAppliedCode = '';
+
+    const parts = block.split(/(“|”)/);
+
     for (let part of parts) {
       if (part === quoteOpenChar) {
         processed += appendColor + quoteOpenChar + globalQuoteStyle;
-        quoteState = true; lastAppliedCode = globalQuoteStyle;
-      } else if (part === quoteCloseChar) {
+        quoteState = true;
+        lastAppliedCode = globalQuoteStyle;
+      } 
+      else if (part === quoteCloseChar) {
         processed += appendColor + quoteCloseChar + '&u';
-        quoteState = false; lastAppliedCode = '&u';
-      } else {
+        quoteState = false;
+        lastAppliedCode = '&u';
+      } 
+      else {
         const styleCode = quoteState ? globalQuoteStyle : '&u';
-        processed += (lastAppliedCode !== styleCode ? styleCode : '') + part;
-        lastAppliedCode = styleCode;
+        if (lastAppliedCode !== styleCode) {
+          processed += styleCode;
+          lastAppliedCode = styleCode;
+        }
+        processed += part;
       }
     }
 
-    result.push({ raw: `${prefixStart}${processed}${suffix}`, preview: processed, length: block.replace(/&[0-9a-fk-or]/gi, '').length });
-    realBlockIndex++;
+    result.push({
+      raw: (currentPrefix ? currentPrefix + ' ' : '') + processed + suffix,
+      preview: processed,
+      length: visibleLength(block)
+    });
+
+    textInGroup++;
     quoteOpenGlobally = quoteState;
   }
 
@@ -98,7 +129,9 @@ function applyColorCodes(text) {
     if (part.match(/^&/)) {
       if (openSpan) output += '</span>';
       openSpan = true;
+
       const cleanCode = part.toLowerCase().replace('&', '');
+
       switch (cleanCode) {
         case 'f&l':
           output += '<span class="code-fl">';
@@ -112,12 +145,16 @@ function applyColorCodes(text) {
           output += `<span class="code-${cleanCode}">`;
           break;
         default:
-          if (cleanCode.length === 1 && '0123456789abcdef'.includes(cleanCode)) output += `<span class="code-${cleanCode}">`;
-          else output += '<span>';
-          break;
+          if ('0123456789abcdef'.includes(cleanCode))
+            output += `<span class="code-${cleanCode}">`;
+          else
+            output += '<span>';
       }
-    } else output += part;
+    } else {
+      output += part;
+    }
   }
+
   if (openSpan) output += '</span>';
   return output.replace(/\n/g, '<br>');
 }
@@ -127,32 +164,42 @@ function generateOutput() {
   const command = document.getElementById("command").value;
   const appendColor = document.getElementById("appendColor").value;
   const outputDiv = document.getElementById("output");
+
   outputDiv.innerHTML = '';
+
   const blocks = formatTextWithAppends(inputText, command, appendColor);
+
   blocks.forEach(({ raw, preview, length }) => {
     const blockEl = document.createElement('div');
     blockEl.className = 'output-block';
+
     const previewEl = document.createElement('div');
     previewEl.className = 'block-preview';
     previewEl.innerHTML = applyColorCodes(preview);
+
     const rawEl = document.createElement('pre');
     rawEl.className = 'block-raw';
     rawEl.textContent = raw;
+
     const copyBtn = document.createElement('button');
     copyBtn.className = 'copy-button';
     copyBtn.textContent = 'Copy';
+
     copyBtn.onclick = () => {
       navigator.clipboard.writeText(rawEl.textContent);
       copyBtn.textContent = 'Copied!';
-      setTimeout(() => (copyBtn.textContent = 'Kopiuj'), 1000);
+      setTimeout(() => (copyBtn.textContent = 'Copy'), 1000);
     };
+
     const charCount = document.createElement('div');
     charCount.className = 'char-count';
     charCount.textContent = `Characters: ${length}`;
+
     blockEl.appendChild(previewEl);
     blockEl.appendChild(rawEl);
     blockEl.appendChild(copyBtn);
     blockEl.appendChild(charCount);
+
     outputDiv.appendChild(blockEl);
   });
 }
