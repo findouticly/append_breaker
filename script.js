@@ -55,7 +55,11 @@ function formatTextWithAppends(text, prefix, appendColor = '&7') {
         case 2: suffix = ` ${appendColor}[+]`; break;
       }
     }
-    if (cycleIndex === 3) currentPrefix = '/it';
+    if (cycleIndex === 3) {
+      if (prefix.endsWith('c')) currentPrefix = '/itc';
+      else if (prefix.endsWith('l')) currentPrefix = '/itl';
+      else currentPrefix = '/it';
+    }
     let prefixStart = currentPrefix ? `${currentPrefix} ` : '';
 
     let block = blocks[i];
@@ -151,4 +155,16 @@ function generateOutput() {
     blockEl.appendChild(charCount);
     outputDiv.appendChild(blockEl);
   });
+}
+
+function openCredits() {
+  const overlay = document.getElementById('creditsOverlay');
+  if (!overlay) return;
+  overlay.hidden = false;
+}
+
+function closeCredits() {
+  const overlay = document.getElementById('creditsOverlay');
+  if (!overlay) return;
+  overlay.hidden = true;
 }

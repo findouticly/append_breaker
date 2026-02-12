@@ -9,6 +9,9 @@
 <body>
   <div class="container">
     <h1>SRP Append Breaker</h1>
+      <div style="text-align:right;margin-bottom:8px">
+        <button id="creditsBtn" onclick="openCredits()">Credits</button>
+      </div>
 
 
     <div class="settings">
@@ -48,13 +51,6 @@
     <div id="output"></div>
   </div>
 
-  <footer style="text-align:center; margin-top:20px; font-size:14px; color:#555;">
-    Made by Vexosphere (@therothea on Discord)
-  </footer>
-  <footer style="text-align:center; margin-top:20px; font-size:14px; color:#555;">
-    Maintained by @findouticly on Discord.
-  </footer>
-
   <footer class="bug-footer">
     Found a bug? Contact me @findouticly and you'll be put into the credits for helping!
   </footer>
@@ -62,5 +58,19 @@
 
 
   <script src="script.js"></script>
+  <!-- Credits modal -->
+  <div id="creditsOverlay" class="credits-overlay" onclick="closeCredits()" hidden>
+    <div class="credits-modal" onclick="event.stopPropagation()">
+      <button class="credits-close" onclick="closeCredits()">✕</button>
+      <h2>Credits</h2>
+      <p>Thanks to everyone who reported bugs and contributed:</p>
+      <ul id="creditsList">
+        <li>@vexosphere — project author</li>
+        <li>@findouticly — maintainer & bug reports</li>
+        <li>@problematickat1 — reported bug with action suffixes</li>
+      </ul>
+      <p>If you'd like to be added, report a bug.</p>
+    </div>
+  </div>
 </body>
 </html>
