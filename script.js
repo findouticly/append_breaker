@@ -5,7 +5,6 @@ function escapeRegex(str) {
 function formatTextWithAppends(text, prefix, appendColor = '&7') {
   const maxBlockLength = 210;
 
-  // Convert normal quotes to smart quotes
   let quoteCount = 0;
   text = text.replace(/"/g, () =>
     quoteCount++ % 2 === 0 ? '“' : '”'
@@ -27,9 +26,6 @@ function formatTextWithAppends(text, prefix, appendColor = '&7') {
   const visibleLength = str =>
     str.replace(/&[0-9a-fk-or]/gi, '').length;
 
-  // -----------------------------
-  // STEP 1: Split ONLY by length
-  // -----------------------------
   const words = text.split(/(\s+)/);
   const blocks = [];
   let current = '';
@@ -45,34 +41,28 @@ function formatTextWithAppends(text, prefix, appendColor = '&7') {
 
   if (current.trim()) blocks.push(current.trim());
 
-  // -----------------------------
-  // STEP 2: Apply strict cycle
-  // -----------------------------
   const result = [];
   let quoteOpenGlobally = false;
 
-  let textInGroup = 0; // 0 → 1 → 2 → (3 triggers /it and reset)
+  let textInGroup = 0;
 
   for (let i = 0; i < blocks.length; i++) {
 
     let currentPrefix = '';
     let suffix = '';
 
-    // FIRST BLOCK
     if (i === 0) {
       currentPrefix = prefix;
     }
 
-    // AFTER 3 TEXT BLOCKS → INSERT /it + RESET
     else if (textInGroup === 3) {
       if (prefix.endsWith('c')) currentPrefix = '/itc';
       else if (prefix.endsWith('l')) currentPrefix = '/itl';
       else currentPrefix = '/it';
 
-      textInGroup = 0; // reset cycle
+      textInGroup = 0;
     }
 
-    // SUFFIX LOGIC
     if (textInGroup === 2) {
       suffix = ` ${appendColor}[+]`;
     } else {
