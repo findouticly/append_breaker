@@ -180,4 +180,14 @@ button {
   100% { opacity: 0; }
 }
 
+.disclaimer-footer {
+  position: fixed;
+  bottom: 0;
+  right: 0;
+  font-size: 10px;
+  color: #777;
+  padding: 5px 10px;
+  background: rgba(255, 255, 255, 0.8);
+  font-weight: bold;
+}
 
