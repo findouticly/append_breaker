@@ -63,11 +63,18 @@ function formatTextWithAppends(text, prefix, appendColor = '&7') {
       textInGroup = 0;
     }
 
-    if (textInGroup === 2) {
-      suffix = ` ${appendColor}[+]`;
-    } else {
-      suffix = '--';
-    }
+const isLastBlock = i === blocks.length - 1;
+
+if (!isLastBlock) {
+  if (textInGroup === 2) {
+    suffix = ` ${appendColor}[+]`;
+  } else {
+    suffix = '--';
+  }
+} else {
+  suffix = '';
+}
+
 
     let block = blocks[i];
     let processed = '';
